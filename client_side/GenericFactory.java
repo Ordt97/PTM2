@@ -6,7 +6,7 @@ import java.util.*;
 public class GenericFactory<Command> {
 
 	private interface Creator<Command>{
-		public Command create();
+		Command create();
 	}
 
 	Map<String,Creator<Command>> map;
@@ -16,17 +16,14 @@ public class GenericFactory<Command> {
 	}
 
 	public void insertCommand(String key, Class<? extends Command> command) {
-        map.put(key, new Creator<Command>(){
-            @Override
-            public Command create() {
-                    try {
-                            return command.getDeclaredConstructor().newInstance();
-                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                            e.printStackTrace();
-                    }
-                return null;
-            }
-        });
+        map.put(key, () -> {
+				try {
+						return command.getDeclaredConstructor().newInstance();
+				} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+						e.printStackTrace();
+				}
+			return null;
+		});
 	}
 
 	public Command createCommand(String key){

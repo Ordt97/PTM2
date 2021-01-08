@@ -2,11 +2,9 @@ package test;
 
 import server_side.ClientHandler;
 import server_side.Server;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class MySerialServer implements Server
 {
@@ -17,7 +15,7 @@ public class MySerialServer implements Server
     {
         try
         {
-            this.listener = new ServerSocket(port);
+            listener = new ServerSocket(port);
         }
         catch (IOException e)
         {
@@ -26,18 +24,18 @@ public class MySerialServer implements Server
         }
         Runnable runnable = () ->
         {
-            while(this._run)
+            while(_run)
             {
                 try
                 {
-                    this.listener.setSoTimeout(1000);
-                    Socket s = this.listener.accept();
+                    listener.setSoTimeout(1000);
+                    Socket s = listener.accept();
 
                     c.handleClient(s.getInputStream(), s.getOutputStream());
-                } catch (UnknownHostException e) {
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                 }
-                catch (IOException e) { }
 
             }
         };
@@ -48,7 +46,7 @@ public class MySerialServer implements Server
 
     public void stop()
     {
-        this._run = false;
+        _run = false;
 
         try
         {

@@ -1,12 +1,11 @@
 package server_side;
 
 import client_side.Parser;
-
 import java.io.*;
 
 public class FlightSimulatorClientHandler implements ClientHandler {
     public static volatile boolean stop;
-    private int timeout;
+    private final int timeout;
 
     public FlightSimulatorClientHandler(int timeout) {
         stop = false;
@@ -36,6 +35,7 @@ public class FlightSimulatorClientHandler implements ClientHandler {
                 }
             }
         } catch (NullPointerException e) {
+            e.printStackTrace();
         }
     }
 }
