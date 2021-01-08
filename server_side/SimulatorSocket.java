@@ -36,7 +36,6 @@ public class SimulatorSocket {
         try {
             sendString("bye");
             socket.close();
-        } catch (IOException e) {
-        }
+        } catch (IOException ignored) {}
     }
 }

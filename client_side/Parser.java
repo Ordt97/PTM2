@@ -3,7 +3,6 @@ package client_side;
 import commands.*;
 import server_side.Server;
 import server_side.SimulatorSocket;
-
 import java.io.IOException;
 import java.util.*;
 

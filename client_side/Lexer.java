@@ -19,12 +19,12 @@ public class Lexer {
     }
 
     public String[] lex(String line) {
-        String[] splitted = line.split("\\s+");
-        if (splitted[0].equals("set")) {
-            return splitted;
+        String[] split_line = line.split("\\s+");
+        if (split_line[0].equals("set")) {
+            return split_line;
         }
 
-        return splitExpression(splitted);
+        return splitExpression(split_line);
     }
 
     private static String[] splitExpression(String[] command) {

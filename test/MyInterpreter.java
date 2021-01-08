@@ -8,4 +8,4 @@ public class MyInterpreter {
 		Parser parser = Parser.getInstance();
 		return parser.parseScript(lines);
 	}
-	}
+}

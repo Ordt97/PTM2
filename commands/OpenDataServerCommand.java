@@ -12,7 +12,7 @@ public class OpenDataServerCommand implements Command {
     public int doCommand(String[] args) {
         int port = Integer.parseInt(args[0]);
         int timeout = Integer.parseInt(args[1]);
-        ClientHandler flightClient = (ClientHandler) new FlightSimulatorClientHandler(timeout);
+        ClientHandler flightClient = new FlightSimulatorClientHandler(timeout);
         Server server = new MySerialServer();
         server.start(port, flightClient);
         Parser.socketToClose = server;
