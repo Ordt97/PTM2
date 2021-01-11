@@ -29,7 +29,7 @@ public class Main extends Application {
             wc.setViewModel(viewModel);
 
             Scene scene = new Scene(root,350,800);
-            scene.getStylesheets().add(getClass().getResource("Style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
             primaryStage.setScene(scene);
             primaryStage.show();
             wc.setSliderOnDragEvent();
