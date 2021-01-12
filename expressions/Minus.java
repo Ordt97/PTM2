@@ -2,13 +2,12 @@ package expressions;
 
 public class Minus extends BinaryExpression {
 
-	public Minus(Expression left, Expression right) {
-		super(left, right);
-	}
+    public Minus(Expression right, Expression left) {
+        super(right, left);
+    }
 
-	@Override
-	public double calculate() {
-		return left.calculate()-right.calculate();
-	}
-
+    @Override
+    public Double calculate() {
+        return right.calculate() - left.calculate();
+    }
 }
