@@ -2,18 +2,18 @@ package expressions;
 
 public class Number implements Expression {
 
-	private double value;
-	
-	public Number(double value) {
-		this.value=value;
-	}
-	
-	public void setValue(double value){
-		this.value=value;
-	}
+    private Double value;
 
-	@Override
-	public double calculate() {
-		return value;
-	}
+    public Number(Double value) {
+        this.value = value;
+    }
+
+    public Number() {
+        this.value = (double) 0;
+    }
+
+    @Override
+    public Double calculate() {
+        return value;
+    }
 }
