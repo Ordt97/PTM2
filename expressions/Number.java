@@ -2,18 +2,14 @@ package expressions;
 
 public class Number implements Expression {
 
-    private Double value;
+    private final double value;
 
-    public Number(Double value) {
+    public Number(double value) {
         this.value = value;
     }
 
-    public Number() {
-        this.value = (double) 0;
-    }
-
     @Override
-    public Double calculate() {
+    public double calculate() {
         return value;
     }
 }
