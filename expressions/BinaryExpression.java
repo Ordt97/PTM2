@@ -2,12 +2,11 @@ package expressions;
 
 public abstract class BinaryExpression implements Expression {
 
-    Expression right;
-    Expression left;
+    protected Expression left, right;
 
-    public BinaryExpression(Expression right, Expression left) {
-        this.right = right;
+    public BinaryExpression(Expression left, Expression right) {
         this.left = left;
+        this.right = right;
     }
 
 }

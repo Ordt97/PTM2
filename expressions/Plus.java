@@ -1,15 +1,14 @@
 package expressions;
 
 public class Plus extends BinaryExpression {
-	
-    public Plus(Expression right, Expression left) {
-        super(right, left);
-        
+
+    public Plus(Expression left, Expression right) {
+        super(left, right);
     }
 
     @Override
-    public Double calculate() {
-
-        return right.calculate() + left.calculate();
+    public double calculate() {
+        return left.calculate() + right.calculate();
     }
+
 }
