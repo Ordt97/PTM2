@@ -1,45 +1,21 @@
 package commands;
 
-import client_side.Parser;
-import expressions.Algo;
+import expressions.ConditionBuilder;
 
 public class PredicateCommand implements Command {
+
+    double result;
+
     @Override
-    public int doCommand(String[] args) {
-        boolean result = false;
-
-        String leftS = args[0];
-        double left;
-        String temp = Algo.isNumber(leftS) ? leftS : Parser.symbolTable.get(leftS);
-        left = Double.parseDouble(temp);
-
-        String rightS = args[2];
-        double right;
-        temp = Algo.isNumber(rightS) ? rightS : Parser.symbolTable.get(rightS);
-        right = Double.parseDouble(temp);
-
-        String operand = args[1];
-        switch (operand) {
-            case ">":
-                result = left > right;
-                break;
-            case "<":
-                result = left < right;
-                break;
-            case "==":
-                result = left == right;
-                break;
-            case "!=":
-                result = left != right;
-                break;
-            case ">=":
-                result = left >= right;
-                break;
-            case "<=":
-                result = left <= right;
-                break;
+    public void doCommand(String[] args) {
+        StringBuilder s = new StringBuilder();
+        for (int i = 1; i < args.length - 1; i++) {
+            s.append(args[i]);
         }
+        result = ConditionBuilder.calc(s.toString());
+    }
 
-        return result ? 1 : 0;
+    public double getResult() {
+        return result;
     }
 }

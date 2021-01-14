@@ -1,6 +1,6 @@
 package expressions;
 
-import client_side.CompParser;
+import client_side.Parser;
 
 import java.util.LinkedList;
 import java.util.Stack;
@@ -30,7 +30,7 @@ public class ShuntingYardPredicate {
                 token = new StringBuilder(expression.charAt(i) + "");
                 while (i < expression.length() - 1 && ((expression.charAt(i + 1) >= 'A' && expression.charAt(i + 1) <= 'Z') || (expression.charAt(i + 1) >= 'a' && expression.charAt(i + 1) <= 'z')))
                     token.append(expression.charAt(++i));
-                token = new StringBuilder(CompParser.symbolTable.get(token.toString()).getV() + "");
+                token = new StringBuilder(Parser.symbolTable.get(token.toString()).getV() + "");
             } else
                 token = new StringBuilder(expression.charAt(i) + "");
 
@@ -68,7 +68,7 @@ public class ShuntingYardPredicate {
                         queue.addFirst(stack.pop());
                     stack.pop();
                     break;
-                default: // Always a number
+                default:
                     queue.addFirst(token.toString());
                     break;
             }
@@ -118,7 +118,6 @@ public class ShuntingYardPredicate {
                         Double.parseDouble(String.format("%.2f", Double.parseDouble(currentExpression))));
                 break;
         }
-
         return returnedExpression;
     }
 

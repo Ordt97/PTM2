@@ -1,14 +1,16 @@
 package commands;
 
-import client_side.Parser;
-
-import java.io.IOException;
-
-public class WhileCommand implements Command {
+public class WhileCommand extends ConditionCommand {
 
     @Override
-    public int doCommand(String[] args) throws IOException {
-        Command predicateCommand = Parser.commandFactory.createCommand("predicate");
-        return predicateCommand.doCommand(args);
+    public void doCommand(String[] args) {
+        PredicateCommand tmp = (PredicateCommand) commands.get(0).getC();
+        commands.get(0).calculate();
+        while (tmp.getResult() != 0) {
+            for (int i = 1; i < commands.size(); i++) {
+                commands.get(i).calculate();
+            }
+            commands.get(0).calculate();
+        }
     }
 }

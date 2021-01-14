@@ -1,18 +1,35 @@
 package commands;
 
-import server_side.SimulatorSocket;
+import expressions.Expression;
 
-import java.io.IOException;
+public class SetCommand implements Expression {
 
-public class SetCommand implements Command {
+    private Command c;
+    private String[] s;
+
+    public SetCommand(Command c) {
+        this.c = c;
+    }
+
+    public Command getC() {
+        return c;
+    }
+
+    public void setC(Command c) {
+        this.c = c;
+    }
+
+    public String[] getS() {
+        return s;
+    }
+
+    public void setS(String[] s) {
+        this.s = s;
+    }
+
     @Override
-    public int doCommand(String[] args) throws IOException {
-        String command = "set " + args[0] + " " + args[1];
-        if(args[1].equals("-")) {
-            command += args[2];
-        }
-
-        SimulatorSocket.getInstance().sendString(command);
+    public double calculate() {
+        c.doCommand(s);
         return 0;
     }
 }

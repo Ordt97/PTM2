@@ -10,5 +10,4 @@ public class Minus extends BinaryExpression {
     public double calculate() {
         return left.calculate() - right.calculate();
     }
-
 }

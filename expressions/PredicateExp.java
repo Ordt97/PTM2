@@ -40,5 +40,4 @@ public class PredicateExp extends BinaryExpression {
             return 1;
         return 0;
     }
-
 }
