@@ -1,40 +1,26 @@
 package client_side;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Scanner;
 
 public class Lexer {
-    private static Lexer instance = null;
+    private Scanner scan;
+    private final ArrayList<String[]> lines = new ArrayList<>();
+    private final String[] arr;
 
-    private Lexer() {
+    public Lexer(String[] s) {
+        arr = s;
     }
 
-    public static Lexer getInstance() {
-        if (instance == null) {
-            instance = new Lexer();
-        }
-
-        return instance;
+    public ArrayList<String[]> lex() {
+        if (arr != null) {
+            for (String s : arr) {
+                lines.add(s.replaceFirst("=", " = ").replaceFirst("\t", "").split("\\s+"));
+            }
+        } else
+            while (scan.hasNextLine()) {
+                lines.add(scan.nextLine().replaceFirst("=", " = ").replaceFirst("\t", "").split("\\s+"));
+            }
+        return lines;
     }
-
-    public String[] lex(String line) {
-        String[] split_line = line.split("\\s+");
-        if (split_line[0].equals("set")) {
-            return split_line;
-        }
-
-        return splitExpression(split_line);
-    }
-
-    private static String[] splitExpression(String[] command) {
-        List<String> newCommand = new ArrayList<>();
-        for (String c : command) {
-            String[] split = c.split("(?<=[-+=*/()])|(?=[-+*/=()])");
-            newCommand.addAll(Arrays.asList(split));
-        }
-
-        return newCommand.toArray(new String[0]);
-    }
-
 }

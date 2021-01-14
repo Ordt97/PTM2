@@ -10,5 +10,4 @@ public class Mul extends BinaryExpression {
     public double calculate() {
         return left.calculate() * right.calculate();
     }
-
 }

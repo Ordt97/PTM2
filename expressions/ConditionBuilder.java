@@ -18,7 +18,6 @@ public class ConditionBuilder {
             queue.addFirst(token);
             token = expression.charAt(i) + "";
             switch (token) {
-
                 case "|":
                     while (!stack.isEmpty())
                         queue.addFirst(stack.pop());
@@ -29,7 +28,7 @@ public class ConditionBuilder {
                         queue.addFirst(stack.pop());
                     stack.push(token);
                     break;
-                default: // Always a number
+                default:
                     queue.addFirst(token);
                     break;
             }
@@ -65,7 +64,6 @@ public class ConditionBuilder {
                         Double.parseDouble(String.format("%.2f", Double.parseDouble(currentExpression))));
                 break;
         }
-
         return returnedExpression;
     }
 }
