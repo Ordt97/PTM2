@@ -5,18 +5,18 @@ import java.util.Stack;
 
 public class ConditionBuilder {
 
-    public static double calc(String expression) {
+    public static double calc(String exp) {
         LinkedList<String> queue = new LinkedList<>();
         Stack<String> stack = new Stack<>();
         String token;
-        while (expression.contains("&") || expression.contains("|")) {
-            int i = expression.indexOf("&");
-            int j = expression.indexOf("|");
+        while (exp.contains("&") || exp.contains("|")) {
+            int i = exp.indexOf("&");
+            int j = exp.indexOf("|");
             if ((j < i && j != -1) || i == -1)
                 i = j;
-            token = ShuntingYardPredicate.calc(expression.substring(0, i)) + "";
+            token = ShuntingYard.calc(exp.substring(0, i)) + "";
             queue.addFirst(token);
-            token = expression.charAt(i) + "";
+            token = exp.charAt(i) + "";
             switch (token) {
                 case "|":
                     while (!stack.isEmpty())
@@ -32,9 +32,9 @@ public class ConditionBuilder {
                     queue.addFirst(token);
                     break;
             }
-            expression = expression.substring(i + 2);
+            exp = exp.substring(i + 2);
         }
-        token = ShuntingYardPredicate.calc(expression) + "";
+        token = ShuntingYard.calc(exp) + "";
         queue.addFirst(token);
         while (!stack.isEmpty())
             queue.addFirst(stack.pop());

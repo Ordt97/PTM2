@@ -8,7 +8,7 @@ public class SleepCommand implements Command {
         try {
             Thread.sleep((long) Algo.calc(args[1]));
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Someone interrupted us to sleep");
         }
     }
 }

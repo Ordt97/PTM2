@@ -4,32 +4,28 @@ import expressions.Expression;
 
 public class SetCommand implements Expression {
 
-    private Command c;
+    private Command command;
     private String[] s;
 
-    public SetCommand(Command c) {
-        this.c = c;
+    public SetCommand(Command command) {
+        this.command = command;
     }
 
-    public Command getC() {
-        return c;
+    public void setCommand(Command command) {
+        this.command = command;
     }
 
-    public void setC(Command c) {
-        this.c = c;
-    }
-
-    public String[] getS() {
-        return s;
-    }
-
-    public void setS(String[] s) {
+    public void setCommandStrings(String[] s) {
         this.s = s;
+    }
+
+    public Command getCommand() {
+        return command;
     }
 
     @Override
     public double calculate() {
-        c.doCommand(s);
+        command.doCommand(s);
         return 0;
     }
 }

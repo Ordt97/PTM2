@@ -1,6 +1,7 @@
 package client_side;
 
 import commands.*;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,6 +30,7 @@ public class Parser {
         commandFactory.insertCommand("predicate", PredicateCommand.class);
         commandFactory.insertCommand("print", PrintCommand.class);
         commandFactory.insertCommand("sleep", SleepCommand.class);
+        commandFactory.insertCommand("autoroute", AutoRouteCommand.class);
         commandFactory.insertCommand("if", IfCommand.class);
 
         commandTable.put("openDataServer", new SetCommand(new OpenDataServerCommand()));
@@ -38,7 +40,9 @@ public class Parser {
         commandTable.put("return", new SetCommand(new ReturnCommand()));
         commandTable.put("=", new SetCommand(new AssignCommand()));
         commandTable.put("disconnect", new SetCommand(new DisconnectCommand()));
+
         Scanner s = null;
+
         try {
             s = new Scanner(new BufferedReader(new FileReader("simulator_vars.txt")));
         } catch (FileNotFoundException e) {
@@ -48,7 +52,7 @@ public class Parser {
 
         while (Objects.requireNonNull(s).hasNext()) vars.add(s.nextLine());
 
-        vars.forEach(str -> symbolTable.put(str, new Var(str)));
+        vars.forEach(path -> symbolTable.put(path, new Var(path)));
     }
 
     private Command parseCondition(ArrayList<String[]> array) {
@@ -57,7 +61,7 @@ public class Parser {
         int i = 0;
         ArrayList<SetCommand> tmp = new ArrayList<>();
         SetCommand tmpExpression = new SetCommand(commandFactory.getNewCommand("predicate"));
-        tmpExpression.setS(array.get(0));
+        tmpExpression.setCommandStrings(array.get(0));
         tmp.add(tmpExpression);
         c.setCommands(tmp);
         c.getCommands().addAll(1, this.parseCommands(new ArrayList<>(array.subList(i + 1, array.size()))));
@@ -67,19 +71,19 @@ public class Parser {
     private ArrayList<SetCommand> parseCommands(ArrayList<String[]> array) {
         ArrayList<SetCommand> commands = new ArrayList<>();
         for (int i = 0; i < array.size(); i++) {
-            SetCommand e = new SetCommand(commandFactory.getNewCommand(array.get(i)[0]));
-            if (e.getC() != null) {
+            SetCommand command = new SetCommand(commandFactory.getNewCommand(array.get(i)[0]));
+            if (command.getCommand() != null) {
                 if (array.get(i)[0].equals("while") || array.get(i)[0].equals("if")) {
                     int index = i;
                     i += loopSize(new ArrayList<>(array.subList(i + 1, array.size()))) + 1;
-                    e.setC(this.parseCondition(new ArrayList<>(array.subList(index, i))));
+                    command.setCommand(this.parseCondition(new ArrayList<>(array.subList(index, i))));
                 }
             } else {
 
-                e = new SetCommand(commandFactory.getNewCommand(array.get(i)[1]));
+                command = new SetCommand(commandFactory.getNewCommand(array.get(i)[1]));
             }
-            e.setS(array.get(i));
-            commands.add(e);
+            command.setCommandStrings(array.get(i));
+            commands.add(command);
         }
         return commands;
     }

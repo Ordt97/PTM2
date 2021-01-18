@@ -1,96 +1,84 @@
 package expressions;
 
-import client_side.CompParser;
+import client_side.Parser;
 
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 public class ShuntingYard {
-    public static double calc(String expression) {
-        LinkedList<String> queue = new LinkedList<>();
+
+    public static double calc(String exp) {
+        Queue<String> queue = new LinkedList<>();
         Stack<String> stack = new Stack<>();
-        int len = expression.length();
+        Stack<Expression> stackExp = new Stack<>();
 
-        StringBuilder token;
-        for (int i = 0; i < len; i++) {
-            if (expression.charAt(i) >= '0' && expression.charAt(i) <= '9') {
-                token = new StringBuilder(expression.charAt(i) + "");
-                while ((i + 1 < len && expression.charAt(i + 1) >= '0' && expression.charAt(i + 1) <= '9')
-                        || (i + 1 < len && expression.charAt(i + 1) == '.'))
-                    token.append(expression.charAt(++i));
-            } else if ((expression.charAt(i) >= 'A' && expression.charAt(i) <= 'Z') || (expression.charAt(i) >= 'a' && expression.charAt(i) <= 'z')) {
-                token = new StringBuilder(expression.charAt(i) + "");
-                while (i < expression.length() - 1 && ((expression.charAt(i + 1) >= 'A' && expression.charAt(i + 1) <= 'Z') || (expression.charAt(i + 1) >= 'a' && expression.charAt(i + 1) <= 'z')))
-                    token.append(expression.charAt(++i));
-                token = new StringBuilder(CompParser.symbolTable.get(token.toString()).getV() + "");
-            } else
-                token = new StringBuilder(expression.charAt(i) + "");
-
-
-            switch (token.toString()) {
-                case "+":
-                case "-":
-                    while (!stack.isEmpty() && !stack.peek().equals("("))
-                        queue.addFirst(stack.pop());
-                    stack.push(token.toString());
-                    break;
-                case "*":
-                case "/":
-                    while (!stack.isEmpty() && (stack.peek().equals("*") || stack.peek().equals("/")))
-                        queue.addFirst(stack.pop());
-                    stack.push(token.toString());
-                    break;
-                case "(":
-                    stack.push(token.toString());
-                    break;
-                case ")":
-                    while (!stack.isEmpty() && !(stack.peek().equals("(")))
-                        queue.addFirst(stack.pop());
-                    stack.pop();
-                    break;
-                default: // Always a number
-                    queue.addFirst(token.toString());
-                    break;
+        String[] split = exp.split("(?<=[-+*/()])|(?=[-+*/()])");
+        for (String s : split) {
+            if (isDouble(s)) {
+                queue.add(s);
+            } else if (Parser.symbolTable.containsKey(s)) {
+                queue.add(String.valueOf(Parser.symbolTable.get(s)));
+            } else {
+                switch (s) {
+                    case "/":
+                    case "*":
+                    case "(":
+                        stack.push(s);
+                        break;
+                    case "+":
+                    case "-":
+                        while (!stack.empty() && (!stack.peek().equals("("))) {
+                            queue.add(stack.pop());
+                        }
+                        stack.push(s);
+                        break;
+                    case ")":
+                        while (!stack.peek().equals("(")) {
+                            queue.add(stack.pop());
+                        }
+                        stack.pop();
+                        break;
+                }
             }
         }
-        while (!stack.isEmpty())
-            queue.addFirst(stack.pop());
-        Expression finalExpression = buildExpression(queue);
-        double answer = finalExpression.calculate();
-        return Double.parseDouble(String.format("%.3f", answer));
-    }
-
-    private static Expression buildExpression(LinkedList<String> queue) {
-        Expression returnedExpression;
-        Expression right = null;
-        Expression left = null;
-        String currentExpression = queue.removeFirst();
-        if (currentExpression.equals("+") || currentExpression.equals("-") || currentExpression.equals("*")
-                || currentExpression.equals("/")) {
-            right = buildExpression(queue);
-            left = buildExpression(queue);
-        }
-        switch (currentExpression) {
-            case "+":
-                returnedExpression = new Plus(left, right);
-                break;
-            case "-":
-                returnedExpression = new Minus(left, right);
-                break;
-            case "*":
-                returnedExpression = new Mul(left, right);
-                break;
-            case "/":
-                returnedExpression = new Div(left, right);
-                break;
-            default:
-                returnedExpression = new Number(
-                        Double.parseDouble(String.format("%.2f", Double.parseDouble(currentExpression))));
-                break;
+        while (!stack.isEmpty()) {
+            queue.add(stack.pop());
         }
 
-        return returnedExpression;
+        for (String str : queue) {
+            if (isDouble(str)) {
+                stackExp.push(new Number(Double.parseDouble(str)));
+            } else if (stackExp.size() > 2) {
+                Expression right = stackExp.pop();
+                Expression left = stackExp.pop();
+
+                switch (str) {
+                    case "/":
+                        stackExp.push(new Div(left, right));
+                        break;
+                    case "*":
+                        stackExp.push(new Mul(left, right));
+                        break;
+                    case "+":
+                        stackExp.push(new Plus(left, right));
+                        break;
+                    case "-":
+                        stackExp.push(new Minus(left, right));
+                        break;
+                }
+            }
+        }
+        if (!stackExp.empty()) return Math.floor((stackExp.pop().calculate() * 1000)) / 1000;
+        else return 1.0;
     }
 
+    private static boolean isDouble(String val) {
+        try {
+            Double.parseDouble(val);
+            return true;
+        } catch (NumberFormatException | NullPointerException e) {
+            return false;
+        }
+    }
 }
-

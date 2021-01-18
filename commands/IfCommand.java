@@ -1,12 +1,12 @@
 package commands;
 
-public class WhileCommand extends ConditionCommand {
+public class IfCommand extends ConditionCommand {
 
     @Override
     public void doCommand(String[] args) {
         PredicateCommand tmp = (PredicateCommand) commands.get(0).getCommand();
         commands.get(0).calculate();
-        while (tmp.getResult() != 0) {
+        if (tmp.getResult() != 0) {
             for (int i = 1; i < commands.size(); i++) {
                 commands.get(i).calculate();
             }

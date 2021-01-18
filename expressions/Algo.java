@@ -5,64 +5,44 @@ import client_side.Parser;
 import java.util.LinkedList;
 import java.util.Stack;
 
-public class ShuntingYardPredicate {
+public class Algo {
 
-    public static double calc(String expression) {
+    public static double calc(String exp) {
         LinkedList<String> queue = new LinkedList<>();
         Stack<String> stack = new Stack<>();
-        int len = expression.length();
+        int len = exp.length();
 
         StringBuilder token;
-        String tmp = null;
         for (int i = 0; i < len; i++) {
-            if (expression.charAt(i) >= '0' && expression.charAt(i) <= '9') {
-                token = new StringBuilder(expression.charAt(i) + "");
-                while ((i + 1 < len && expression.charAt(i + 1) >= '0' && expression.charAt(i + 1) <= '9')
-                        || (i + 1 < len && expression.charAt(i + 1) == '.'))
-                    token.append(expression.charAt(++i));
-            } else if ((expression.charAt(i) >= '<' && expression.charAt(i) <= '>') || expression.charAt(i) == '!') {
-                if (expression.charAt(i + 1) == '=') {
-                    token = new StringBuilder(expression.charAt(i) + "");
-                    token.append(expression.charAt(++i));
-                } else
-                    token = new StringBuilder(expression.charAt(i) + "");
-            } else if ((expression.charAt(i) >= 'A' && expression.charAt(i) <= 'Z') || (expression.charAt(i) >= 'a' && expression.charAt(i) <= 'z')) {
-                token = new StringBuilder(expression.charAt(i) + "");
-                while (i < expression.length() - 1 && ((expression.charAt(i + 1) >= 'A' && expression.charAt(i + 1) <= 'Z') || (expression.charAt(i + 1) >= 'a' && expression.charAt(i + 1) <= 'z')))
-                    token.append(expression.charAt(++i));
-                token = new StringBuilder(Parser.symbolTable.get(token.toString()).getV() + "");
+            if (exp.charAt(i) >= '0' && exp.charAt(i) <= '9') {
+                token = new StringBuilder(exp.charAt(i) + "");
+                while ((i + 1 < len && exp.charAt(i + 1) >= '0' && exp.charAt(i + 1) <= '9')
+                        || (i + 1 < len && exp.charAt(i + 1) == '.'))
+                    token.append(exp.charAt(++i));
+            } else if ((exp.charAt(i) >= 'A' && exp.charAt(i) <= 'Z') || (exp.charAt(i) >= 'a' && exp.charAt(i) <= 'z')) {
+                token = new StringBuilder(exp.charAt(i) + "");
+                while (i < exp.length() - 1 && ((exp.charAt(i + 1) >= 'A' && exp.charAt(i + 1) <= 'Z') || (exp.charAt(i + 1) >= 'a' && exp.charAt(i + 1) <= 'z')))
+                    token.append(exp.charAt(++i));
+                token = new StringBuilder(Parser.symbolTable.get(token.toString()).getValue() + "");
             } else
-                token = new StringBuilder(expression.charAt(i) + "");
-
+                token = new StringBuilder(exp.charAt(i) + "");
 
             switch (token.toString()) {
-
                 case "+":
                 case "-":
                     while (!stack.isEmpty() && !stack.peek().equals("("))
                         queue.addFirst(stack.pop());
                     stack.push(token.toString());
                     break;
-                case "||":
-                case "&&":
                 case "*":
                 case "/":
                     while (!stack.isEmpty() && (stack.peek().equals("*") || stack.peek().equals("/")))
                         queue.addFirst(stack.pop());
                     stack.push(token.toString());
                     break;
-                case "<":
-                case "<=":
-                case ">":
-                case ">=":
-                case "!=":
-                case "==":
-                    tmp = token.toString();
-                    break;
                 case "(":
                     stack.push(token.toString());
                     break;
-
                 case ")":
                     while (!stack.isEmpty() && !(stack.peek().equals("(")))
                         queue.addFirst(stack.pop());
@@ -75,7 +55,6 @@ public class ShuntingYardPredicate {
         }
         while (!stack.isEmpty())
             queue.addFirst(stack.pop());
-        queue.addFirst(tmp);
         Expression finalExpression = buildExpression(queue);
         double answer = finalExpression.calculate();
         return Double.parseDouble(String.format("%.3f", answer));
@@ -87,8 +66,7 @@ public class ShuntingYardPredicate {
         Expression left = null;
         String currentExpression = queue.removeFirst();
         if (currentExpression.equals("+") || currentExpression.equals("-") || currentExpression.equals("*")
-                || currentExpression.equals("/") || currentExpression.equals("<") || currentExpression.equals(">")
-                || currentExpression.equals("<=") || currentExpression.equals(">=") || currentExpression.equals("==") || currentExpression.equals("!=")) {
+                || currentExpression.equals("/")) {
             right = buildExpression(queue);
             left = buildExpression(queue);
         }
@@ -105,14 +83,6 @@ public class ShuntingYardPredicate {
             case "/":
                 returnedExpression = new Div(left, right);
                 break;
-            case "<=":
-            case ">":
-            case ">=":
-            case "==":
-            case "!=":
-            case "<":
-                returnedExpression = new PredicateExp(left, right, currentExpression);
-                break;
             default:
                 returnedExpression = new Number(
                         Double.parseDouble(String.format("%.2f", Double.parseDouble(currentExpression))));
@@ -122,3 +92,4 @@ public class ShuntingYardPredicate {
     }
 
 }
+
