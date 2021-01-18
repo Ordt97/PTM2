@@ -5,14 +5,20 @@ import java.util.Map;
 
 public class GenericFactory<Command> {
 
+    Map<String, Creator<Command>> map;
+
     private interface Creator<Command> {
         Command create();
     }
 
-    Map<String, Creator<Command>> map;
-
     public GenericFactory() {
         map = new HashMap<>();
+    }
+
+    public Command getNewCommand(String key) {
+        if (map.containsKey(key))
+            return map.get(key).create();
+        return null;
     }
 
     public void insertCommand(String key, Class<? extends Command> command) {
@@ -24,15 +30,5 @@ public class GenericFactory<Command> {
             }
             return null;
         });
-    }
-
-    public Command createCommand(String key){
-        return map.containsKey(key) ? map.get(key).create() : null;
-    }
-
-    public Command getNewCommand(String key) {
-        if (map.containsKey(key))
-            return map.get(key).create();
-        return null;
     }
 }

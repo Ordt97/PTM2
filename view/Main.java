@@ -1,48 +1,42 @@
 package view;
 
+import commands.DisconnectCommand;
+import client_side.AutoPilot;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import server_side.SimulatorModel;
+import model.Model;
 import view_model.ViewModel;
-import java.io.IOException;
 
 public class Main extends Application {
-    public static Stage primaryStage;
 
     @Override
-    public void start(Stage _primaryStage) {
-        primaryStage = _primaryStage;
-
-        // models
-        SimulatorModel simModel = new SimulatorModel();
-        // view model
-        ViewModel viewModel = new ViewModel(simModel);
-
-        FXMLLoader fxl=new FXMLLoader();
-        try {
-            BorderPane root = fxl.load(getClass().getResource("JoyStick.fxml").openStream());
-
-            JoyStickController wc=fxl.getController(); // View
-            wc.setViewModel(viewModel);
-
-            Scene scene = new Scene(root,350,800);
-            scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-            primaryStage.setScene(scene);
-            primaryStage.show();
-            wc.setSliderOnDragEvent();
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    public void start(Stage primaryStage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Window.fxml"));
+        Parent root = loader.load();
+        WindowController ctrl = loader.getController();
+        ViewModel viewModel = new ViewModel();
+        Model model = new Model();
+        model.addObserver(viewModel);
+        viewModel.setModel(model);
+        viewModel.addObserver(ctrl);
+        ctrl.setViewModel(viewModel);
+        primaryStage.setTitle("FlightGear Simulator");
+        primaryStage.setScene(new Scene(root));
+        primaryStage.show();
+        primaryStage.setOnCloseRequest(event -> {
+            DisconnectCommand command = new DisconnectCommand();
+            String[] disconnect = {""};
+            command.doCommand(disconnect);
+            AutoPilot.autoPilot.interrupt();
+            model.stopAll();
+            System.out.println("bye");
+        });
     }
 
     public static void main(String[] args) {
         launch(args);
-
     }
 }

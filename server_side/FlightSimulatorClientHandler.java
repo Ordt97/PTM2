@@ -1,41 +1,21 @@
 package server_side;
 
-import client_side.Parser;
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class FlightSimulatorClientHandler implements ClientHandler {
-    public static volatile boolean stop;
-    private final int timeout;
+    public static volatile boolean stop = false;
+    MyClientHandler ch;
 
-    public FlightSimulatorClientHandler(int timeout) {
-        stop = false;
-        this.timeout = timeout; // ms
+    public FlightSimulatorClientHandler(MyClientHandler ch) {
+        this.ch = ch;
     }
 
     @Override
-    public void handleClient(InputStream in, OutputStream out) throws IOException {
-        BufferedReader b_in = new BufferedReader(new InputStreamReader(in));
-        String client_input;
-        try {
-            while (!stop && !(client_input = b_in.readLine()).equals("bye")) {
-                String[] vars = client_input.split(",");
+    public void handleClient(InputStream in, OutputStream out) {
+        while (!stop) {
 
-                Parser.symbolTable.put("x", vars[0]);
-                Parser.symbolTable.put("y", vars[1]);
-                Parser.symbolTable.put("z", vars[2]);
-
-                Parser.updateBindings("x", vars[0]);
-                Parser.updateBindings("y", vars[1]);
-                Parser.updateBindings("z", vars[2]);
-
-                try {
-                    Thread.sleep(timeout);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+            ch.handleClient(in, out);
         }
     }
 }

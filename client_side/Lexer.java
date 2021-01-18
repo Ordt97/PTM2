@@ -8,8 +8,8 @@ public class Lexer {
     private final ArrayList<String[]> lines = new ArrayList<>();
     private final String[] arr;
 
-    public Lexer(String[] s) {
-        arr = s;
+    public Lexer(String[] str) {
+        arr = str;
     }
 
     public ArrayList<String[]> lex() {

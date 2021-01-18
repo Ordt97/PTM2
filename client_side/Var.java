@@ -7,21 +7,7 @@ public class Var extends Observable implements Observer {
     double value;
     String location;
 
-    @Override
-    public void update(Observable o, Object arg) {
-        Double d = (double) 0;
-        if (arg.getClass() == (d.getClass())) {
-            if (this.value != (double) arg) {
-                this.setV((double) arg);
-                this.setChanged();
-                this.notifyObservers(arg + "");
-            }
-        }
-    }
-
-    @Override
-    public String toString() {
-        return this.location;
+    public Var() {
     }
 
     public Var(double v) {
@@ -29,26 +15,41 @@ public class Var extends Observable implements Observer {
         this.location = null;
     }
 
-    public Var() {}
-
-    public Var(String loc) {
+    public Var(String location) {
         super();
-        location = loc;
+        this.location = location;
     }
 
-    public double getV() {
+    public double getValue() {
         return value;
-    }
-
-    public void setV(double v) {
-        if (this.value != v) {
-            this.value = v;
-            setChanged();
-            notifyObservers(v);
-        }
     }
 
     public String getLocation() {
         return location;
+    }
+
+    @Override
+    public String toString() {
+        return this.location;
+    }
+
+    public void setValue(double newValue) {
+        if (this.value != newValue) {
+            this.value = newValue;
+            setChanged();
+            notifyObservers(newValue);
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Double d = (double) 0;
+        if (arg.getClass() == (d.getClass())) {
+            if (this.value != (double) arg) {
+                this.setValue((double) arg);
+                this.setChanged();
+                this.notifyObservers(arg + "");
+            }
+        }
     }
 }

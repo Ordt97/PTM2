@@ -1,143 +1,132 @@
 package view_model;
 
 import javafx.beans.property.*;
-import javafx.fxml.Initializable;
-import server_side.Model;
+import model.Model;
 
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.ResourceBundle;
+import java.util.Scanner;
+
+public class ViewModel extends Observable implements Observer {
+    public DoubleProperty throttle;
+    public DoubleProperty rudder;
+    public DoubleProperty aileron;
+    public DoubleProperty elevator;
+    public StringProperty ip;
+    public StringProperty port;
+    public DoubleProperty airplaneX;
+    public DoubleProperty airplaneY;
+    public DoubleProperty startX;
+    public DoubleProperty startY;
+    public DoubleProperty offset;
+    public StringProperty script;
+    public DoubleProperty heading;
+    public DoubleProperty markSceneX, markSceneY;
+    public BooleanProperty path;
+    private int data[][];
+    private Model model;
 
 
-public class ViewModel extends Observable implements Observer, Initializable{
-		public StringProperty textBox;
-		public BooleanProperty connectStatus;
-		public Model model;
-		
-		//Joystic Variables
-		public DoubleProperty aileron, elevator;
-		public DoubleProperty thorttle, rudder;
-		
-		//Connect Popup Window Variables
-		public StringProperty textIp, textPort;
-		
-		//Map Variables
-		public StringProperty stringMapFile; //binding the map data 
-		public IntegerProperty startPlaneX;
-		public IntegerProperty startPlaneY;
-		public DoubleProperty destX;
-		public DoubleProperty destY;
-		public StringProperty mapSolution;
-		public DoubleProperty simulatorPlaneX;
-		public DoubleProperty simulatorPlaneY;
-		
-		
-		//Popup Map Connect
-		public StringProperty textMapIP, textMapPort;
-		public BooleanProperty connectMapStatus;
-		
-		
-		public ViewModel(Model model) {
-			this.model = model;
-			startPlaneX = new SimpleIntegerProperty();
-			startPlaneY = new SimpleIntegerProperty();
-			textIp = new SimpleStringProperty();
-			textPort= new SimpleStringProperty();
-			thorttle = new SimpleDoubleProperty();
-			stringMapFile = new SimpleStringProperty();
-			aileron = new SimpleDoubleProperty();
-			elevator = new SimpleDoubleProperty();
-			rudder = new SimpleDoubleProperty();
-			textBox = new SimpleStringProperty();
-			connectStatus = new SimpleBooleanProperty();
-			textMapIP = new SimpleStringProperty();
-			textMapPort = new SimpleStringProperty();
-			connectMapStatus = new SimpleBooleanProperty();
-			destX = new SimpleDoubleProperty();
-			destY = new SimpleDoubleProperty();
-			mapSolution = new SimpleStringProperty();
-			simulatorPlaneX = new SimpleDoubleProperty();
-			simulatorPlaneY= new SimpleDoubleProperty();
-		}
-		
-		
-		@Override
-		public void initialize(URL location, ResourceBundle resources) {
-			
-			
-		}
-				
-		//sending to the Model the value of the aileron(from joystick)
-		public void setAileron() {
-			model.setAileron(aileron.get());
-			}
-		//sending to the Model the value of the elevator(from joystick)	
-		public void setElevator() {
-			model.setElevator(elevator.get());
-			}
-		
-		//after the method called in MainController, send it to the model
-		public void updateThrottle() { 
-			model.setThrottle(thorttle.get());
-			
-		}
-		//after the method called in MainController, send it to the model
-		public void updateRudder() { 
-			model.setRudder(rudder.get());	
-		}
-	
-		//send the auto pilot script to the model
-		public void loadfromFile() {
-			model.runScript(textBox.get());
-		}
+    public void setData(int[][] data) {
+        this.data = data;
+        model.GetPlaneLocation(startX.getValue(), startY.doubleValue(), offset.getValue());
+    }
 
-		//recieving messages from model (connect, connectsuccess, disconnect)
-		//and notify popupcontroller to close 
-		@Override
-		public void update(Observable o, Object arg) { 
-			if (o == model) {
-				if(arg.equals("Success Connect To Server")) {
-					this.simulatorPlaneX.set(model.sPlaneX);
-					this.simulatorPlaneY.set(model.sPlaneY);
-					connectStatus.set(false);
-					setChanged();
-					notifyObservers("Close Popup");
-				}
-				
-				else if(arg.equals("Failed Connect To Server")) {
-					connectStatus.set(true);	
-					
-				}
-				else if (arg.equals("Calculation Done")) {
-					mapSolution.set(model.getSolution());
-					setChanged();
-					notifyObservers("Calculation_Done");
-				}
-				
-			}
-			
-		}
+    public ViewModel() {
+        throttle = new SimpleDoubleProperty();
+        rudder = new SimpleDoubleProperty();
+        aileron = new SimpleDoubleProperty();
+        elevator = new SimpleDoubleProperty();
+        ip = new SimpleStringProperty();
+        port = new SimpleStringProperty();
+        airplaneX = new SimpleDoubleProperty();
+        airplaneY = new SimpleDoubleProperty();
+        startX = new SimpleDoubleProperty();
+        startY = new SimpleDoubleProperty();
+        offset = new SimpleDoubleProperty();
+        script = new SimpleStringProperty();
+        heading = new SimpleDoubleProperty();
+        markSceneX = new SimpleDoubleProperty();
+        markSceneY = new SimpleDoubleProperty();
+        path = new SimpleBooleanProperty();
+    }
 
-		
-		
-		//Send to model the ip and port
-		public void connectToSimulator() {
-			model.ConnectToServer(textIp.get(), Integer.parseInt(textPort.get()));
-		}
-		
-		//send ip and port to milestone 3
-		public void connectToMile3(Integer[][] theMat) {
-			model.connectToMap(this.textMapIP.get(), Integer.parseInt(this.textMapPort.get()), theMat, this.startPlaneX.get(), 
-					this.startPlaneY.get(), this.destX.get(), this.destY.get());
+    public void setModel(Model model) {
+        this.model = model;
 
-			
-		}
+    }
 
-	
-		
-		
+    public void setThrottle() {
+        String[] data = {"set /controls/engines/current-engine/throttle " + throttle.getValue()};
+        model.send(data);
+    }
+
+    public void setRudder() {
+        String[] data = {"set /controls/flight/rudder " + rudder.getValue()};
+        model.send(data);
+    }
+
+    public void setJoystick() {
+        String[] data = {
+                "set /controls/flight/aileron " + aileron.getValue(),
+                "set /controls/flight/elevator " + elevator.getValue(),
+        };
+        model.send(data);
+    }
+
+    public void connect() {
+        model.connectManual(ip.getValue(), Integer.parseInt(port.getValue()));
+    }
+
+    public void parse() {
+        Scanner scanner = new Scanner(script.getValue());
+        ArrayList<String> list = new ArrayList<>();
+        while (scanner.hasNextLine()) {
+            list.add(scanner.nextLine());
+        }
+        String[] tmp = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            tmp[i] = list.get(i);
+        }
+        model.parse(tmp);
+    }
+
+    public void execute() {
+        model.execute();
+    }
+
+    public void stopAutoPilot() {
+        model.stopAutoPilot();
+    }
+
+    public void findPath(double h, double w) {
+        if (!path.getValue()) {
+            model.connect(ip.getValue(), Integer.parseInt(port.getValue()));
+        }
+        model.findPath((int) (airplaneY.getValue() / -1), (int) (airplaneX.getValue() + 15), Math.abs((int) (markSceneY.getValue() / h)),
+                Math.abs((int) (markSceneX.getValue() / w)), data);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o == model) {
+            String[] tmp = (String[]) arg;
+            if (tmp[0].equals("plane")) {
+                double x = Double.parseDouble(tmp[1]);
+                double y = Double.parseDouble(tmp[2]);
+                x = (x - startX.getValue() + offset.getValue());
+                x /= offset.getValue();
+                y = (y - startY.getValue() + offset.getValue()) / offset.getValue();
+                airplaneX.setValue(x);
+                airplaneY.setValue(y);
+                heading.setValue(Double.parseDouble(tmp[3]));
+                setChanged();
+                notifyObservers();
+            } else if (tmp[0].equals("path")) {
+                setChanged();
+                notifyObservers(tmp);
+            }
+        }
+    }
 }
-
-
-
