@@ -1,6 +1,6 @@
 package commands;
 
-import expressions.Algo;
+import expressions.ExpressionBuilder;
 import client_side.Parser;
 
 public class ReturnCommand implements Command {
@@ -11,6 +11,6 @@ public class ReturnCommand implements Command {
         for (String arg : args) {
             exp.append(arg);
         }
-        Parser.returnValue = (int)Algo.calc(exp.toString());
+        Parser.returnValue = (int) ExpressionBuilder.calc(exp.toString());
     }
 }

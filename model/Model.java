@@ -36,7 +36,7 @@ public class Model extends Observable implements Observer {
     double currentLocationX;
     double currentLocationY;
     double currentHeading;
-    ArrayList<String[]> intersections = new ArrayList<>();
+    //ArrayList<String[]> intersections = new ArrayList<>();
     Thread route;
     Thread rudder;
     int indexPlan = 0;
@@ -46,8 +46,8 @@ public class Model extends Observable implements Observer {
         joystickModel = new JoystickModel();
         mapModel = new MapModel();
         interpreter = new Interpreter();
-        route=new Thread(()->{this.routeStart();});
-        rudder=new Thread(()->{this.rudderStart();});
+        route=new Thread(this::routeStart);
+        rudder=new Thread(this::rudderStart);
     }
 
     public void connectManual(String ip, int port) {
@@ -79,7 +79,7 @@ public class Model extends Observable implements Observer {
             outPath = new PrintWriter(socketPath.getOutputStream());
             in = new BufferedReader(new InputStreamReader(socketPath.getInputStream()));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Could not connect to server");
         }
     }
 
@@ -89,13 +89,13 @@ public class Model extends Observable implements Observer {
             if (outPath != null) outPath.close();
             if (in != null) in.close();
             if (socketPath != null) socketPath.close();
+            simulatorModel.stop();
+            AutoPilot.autoPilot.interrupt();
+            AutoPilot.close = true;
+            Model.turn = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        simulatorModel.stop();
-        AutoPilot.autoPilot.interrupt();
-        AutoPilot.close = true;
-        Model.turn = true;
     }
 
     public void GetPlaneLocation(double startX, double startY, double offset) {
@@ -125,18 +125,35 @@ public class Model extends Observable implements Observer {
                     br.readLine();
                     out.println("get /instrumentation/heading-indicator/indicated-heading-deg");
                     out.flush();
-                    String[] h = br.readLine().split(" ");
-                    int tmp = h[3].length();
+                    String[] heading = br.readLine().split(" ");
+                    int length = heading[3].length();
+                    //Update heading
+                    Parser.symbolTable.get("heading").setValue(Double.parseDouble(heading[3].replaceAll("'", "")));
                     currentLocationX = Double.parseDouble(x[2]);
                     currentLocationY = Double.parseDouble(y[2]);
-                    currentHeading = Double.parseDouble(h[3].substring(1, tmp - 1));
-                    String[] data = {"plane", x[2], y[2], h[3].substring(1, tmp - 1)};
+                    currentHeading = Double.parseDouble(heading[3].substring(1, length - 1));
+                    String[] data = {"plane", x[2], y[2], heading[3].substring(1, length - 1)};
+                    out.println("get /instrumentation/altimeter/indicated-altitude-ft");
+                    out.flush();
+                    String [] alt = br.readLine().split(" ");
+                    //Update alt
+                    Parser.symbolTable.get("alt").setValue(Double.parseDouble(alt[3].replaceAll("'", "")));
+                    out.println("get /instrumentation/attitude-indicator/indicated-roll-deg");
+                    out.flush();
+                    String [] roll = br.readLine().split(" ");
+                    //Update roll
+                    Parser.symbolTable.get("roll").setValue(Double.parseDouble(roll[3].replaceAll("'", "")));
+                    out.println("get /instrumentation/attitude-indicator/internal-pitch-deg");
+                    out.flush();
+                    String [] pitch = br.readLine().split(" ");
+                    //Update pitch
+                    Parser.symbolTable.get("pitch").setValue(Double.parseDouble(pitch[3].replaceAll("'", "")));
                     this.setChanged();
                     this.notifyObservers(data);
                     try {
                         Thread.sleep(250);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        System.out.println("Someone interrupt us to sleep");
                     }
                 }
                 socket.close();
@@ -171,27 +188,26 @@ public class Model extends Observable implements Observer {
             outPath.println(planeX + "," + planeY);
             outPath.println(markX + "," + markY);
             outPath.flush();
-            String str = null;
+            String solution = null;
             try {
-                str = in.readLine();
+                solution = in.readLine();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             System.out.println("\tSolution received");
-            System.out.println(str);
-            String[] tmp = Objects.requireNonNull(str).split(",");
-
-            String[] notify = new String[tmp.length + 1];
+            System.out.println(solution);
+            String[] splitSolution = Objects.requireNonNull(solution).split(",");
+            String[] notify = new String[splitSolution.length + 1];
             notify[0] = "path";
-            for (i = 0; i < tmp.length; i++)
-                notify[i + 1] = tmp[i];
+            for (i = 0; i < splitSolution.length; i++)
+                notify[i + 1] = splitSolution[i];
             this.setChanged();
             this.notifyObservers(notify);
-            mapModel.FindIntersections(tmp);
+            mapModel.FindIntersections(splitSolution);
             mapModel.buildPlan();
             if(!route.isAlive())
                 route.start();
-            else if(Model.turn==false)
+            else if(!Model.turn)
             {
                 route.interrupt();
                 route.start();
@@ -200,12 +216,10 @@ public class Model extends Observable implements Observer {
     }
 
     private void rudderStart() {
-        System.out.println(intersections);
-        while (indexPlan < intersections.size()) {
-            System.out.println("wowwwww");
+        while (indexPlan < MapModel.intersections.size()) {
             double heading, headingC;
-            double tmp;
-            heading = Integer.parseInt(intersections.get(indexPlan)[0]);
+            double diff;
+            heading = Integer.parseInt(MapModel.intersections.get(indexPlan)[0]);
             headingC = currentHeading;
             int degree, degreeCom;
             degree = (int) (heading - headingC);
@@ -218,16 +232,16 @@ public class Model extends Observable implements Observer {
             } else {
                 turning = joystickModel.turnMinus(headingC);
             }
-            tmp = (turning - headingC);
-            if (tmp >= 340)
-                tmp = 360 - tmp;
-            else if (tmp < -340)
-                tmp = -360 - tmp;
+            diff = (turning - headingC);
+            if (diff >= 340)
+                diff = 360 - diff;
+            else if (diff < -340)
+                diff = -360 - diff;
             if (Math.abs(heading - headingC) > 9 && Math.abs(heading - headingC) < 349) {
-                Parser.symbolTable.get("r").setValue(tmp / 20);
+                Parser.symbolTable.get("r").setValue(diff / 20);
                 Parser.symbolTable.get("e").setValue(0.095);
             } else {
-                Parser.symbolTable.get("r").setValue(tmp / 100);
+                Parser.symbolTable.get("r").setValue(diff / 100);
                 Parser.symbolTable.get("e").setValue(0.053);
             }
             try {
@@ -240,7 +254,7 @@ public class Model extends Observable implements Observer {
 
     private void routeStart()
     {
-        System.out.println("wowww2");
+        double intersectionX,intersectionY,pathX,pathY,endX,endY;
         while(turn) {
             try {
                 Thread.sleep(1000);
@@ -249,15 +263,14 @@ public class Model extends Observable implements Observer {
             }
         }
         rudder.start();
-        double intersectionX,intersectionY,pathX,pathY,endX,endY;
         pathX=startX+(planeY-1)*offset;
         pathY=startY-(planeX-1)*offset;
         endX=startX+(markY-1)*offset;
         endY=startY-(markX-1)*offset;
-        int radiusX=17,radiusY=7;
-        while(!turn && indexPlan<intersections.size()) {
-            int h = Integer.parseInt(intersections.get(indexPlan)[0]);
-            int n = Integer.parseInt(intersections.get(indexPlan)[1]);
+        int radiusX=17;
+        while(!turn && indexPlan<MapModel.intersections.size()) {
+            int h = Integer.parseInt(MapModel.intersections.get(indexPlan)[0]);
+            int n = Integer.parseInt(MapModel.intersections.get(indexPlan)[1]);
             switch (h) {
                 case 360:
                     intersectionX = pathX;
@@ -278,7 +291,6 @@ public class Model extends Observable implements Observer {
                 case 180:
                     intersectionX = pathX;
                     intersectionY = pathY - (n - 1) * offset;
-                    ;
                     break;
                 case 225:
                     intersectionX = pathX - (n - 1) * offset;
@@ -296,11 +308,10 @@ public class Model extends Observable implements Observer {
                     intersectionX = 0;
                     intersectionY = 0;
             }
-            if(indexPlan==intersections.size()-1)
+            if(indexPlan==MapModel.intersections.size()-1)
             {
                 intersectionX=endX;
                 intersectionY=endY;
-                radiusY=20;
             }
             while (Math.abs(currentLocationX - intersectionX) >radiusX * offset || Math.abs(currentLocationY - intersectionY) > radiusX * offset) {
                 try {
@@ -309,13 +320,11 @@ public class Model extends Observable implements Observer {
                     e.printStackTrace();
                 }
             }
-
             indexPlan++;
             pathX=currentLocationX;
             pathY=currentLocationY;
 
         }
-        Parser.symbolTable.get("goal").setValue(1);
-
+        Parser.symbolTable.get("destination").setValue(1);
     }
 }

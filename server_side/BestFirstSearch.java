@@ -3,16 +3,15 @@ package server_side;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Astar<Solution> extends CommonSearcher<Solution> {
+public class BestFirstSearch<Solution> extends CommonSearcher<Solution> {
 
+    Heuristic heuristic;
     public interface Heuristic {
         double cost(State s, State goalState);
     }
 
-    Heuristic h;
-
-    public Astar(Heuristic h) {
-        this.h = h;
+    public BestFirstSearch(Heuristic heuristic) {
+        this.heuristic = heuristic;
     }
 
     @Override
@@ -23,11 +22,10 @@ public class Astar<Solution> extends CommonSearcher<Solution> {
             State n = popOpenList();
             closedSet.add(n);
             ArrayList<State> successors = s.getAllPossibleStates(n);
-            n.setCost(n.getCost() + h.cost(n, s.getGoalState()));
-            if (n.equals(s.getGoalState()))
-                return backTrace(n, s.getInitialState());
+            n.setCost(n.getCost() + heuristic.cost(n, s.getDestinationState()));
+            if (n.equals(s.getDestinationState())) return backTrace(n, s.getInitialState());
             for (State state : successors) {
-                state.setCost(state.getCost() + h.cost(state, s.getGoalState()));
+                state.setCost(state.getCost() + heuristic.cost(state, s.getDestinationState()));
                 if (!closedSet.contains(state) && !openList.contains(state)) {
                     state.setCameFrom(n);
                     openList.add(state);
@@ -41,7 +39,6 @@ public class Astar<Solution> extends CommonSearcher<Solution> {
                     }
             }
         }
-        return backTrace(s.getGoalState(), s.getInitialState());
+        return backTrace(s.getDestinationState(), s.getInitialState());
     }
-
 }

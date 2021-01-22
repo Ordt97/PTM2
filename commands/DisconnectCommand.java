@@ -1,14 +1,15 @@
 package commands;
 
-public class DisconnectCommand implements Command {
+public class DisconnectCommand extends ConnectCommand {
+
     @Override
     public void doCommand(String[] args) {
+        OpenDataServerCommand.stop = true;
+        ConnectCommand.stop = true;
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Someone interrupt us to sleep");
         }
-        OpenDataServerCommand.stop = true;
-        ConnectCommand.stop = true;
     }
 }

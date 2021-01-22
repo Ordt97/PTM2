@@ -1,7 +1,7 @@
 package commands;
 
 import client_side.Parser;
-import expressions.Algo;
+import expressions.ExpressionBuilder;
 import model.SimulatorModel;
 
 public class AssignCommand implements Command {
@@ -20,7 +20,7 @@ public class AssignCommand implements Command {
             StringBuilder exp = new StringBuilder();
             for (int i = 2; i < args.length; i++)
                 exp.append(args[i]);
-            double result = Algo.calc(exp.toString());
+            double result = ExpressionBuilder.calc(exp.toString());
             if (Parser.symbolTable.get(args[0]) != null && Parser.symbolTable.get(args[0]).getLocation() != null) {
                 String[] command = {"set " + Parser.symbolTable.get(args[0]).getLocation() + " " + result};
                 simulatorModel.send(command);

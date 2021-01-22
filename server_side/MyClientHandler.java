@@ -7,10 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 public class MyClientHandler implements ClientHandler {
-
     CacheManager cm;
     Solver solver;
 
@@ -26,66 +26,82 @@ public class MyClientHandler implements ClientHandler {
             String Line;
             StringBuilder Solved;
             ArrayList<String[]> lines = new ArrayList<>();
-            while (!(Line = Bin.readLine()).equals("end")) {
-                lines.add(Line.split(","));
+            try {
+                while (!(Line = Bin.readLine()).equals("end")) {
+                    lines.add(Line.split(","));
+                }
+            } catch (SocketException | NullPointerException e) {
+                System.out.println("Client left");
+                System.exit(1);
             }
             int j = 0;
             int[][] mat = new int[lines.size()][];
             for (int i = 0; i < mat.length - 1; i++) {
-                String[] tmp = lines.get(i);
-                mat[i] = new int[tmp.length];
-                for (String s : tmp) {
+                String[] line = lines.get(i);
+                mat[i] = new int[line.length];
+                for (String s : line) {
                     mat[i][j] = Integer.parseInt(s);
                     j++;
                 }
                 j = 0;
             }
             Matrix m = new Matrix(mat);
-            Astar.Heuristic heuristic = (s, goalState) -> {
-                String start = (String) (s.getState());
-                String[] tmp = start.split(",");
-                double x1 = Integer.parseInt(tmp[0]);
-                double y1 = Integer.parseInt(tmp[1]);
-                String end = (String) goalState.getState();
-                tmp = end.split(",");
-                double x2 = Integer.parseInt(tmp[0]);
-                double y2 = Integer.parseInt(tmp[1]);
-                return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-            };
-            Searcher searcher = new Astar(heuristic);
+            BestFirstSearch.Heuristic heuristic = getHeuristic();
+            Searcher searcher = new BestFirstSearch(heuristic);
             solver = new SolverSearcher<>(searcher);
-            m.setInitialState(Bin.readLine());
-            m.setGoalState(Bin.readLine());
+            m.setInitState(Bin.readLine());
+            m.setDestinationState(Bin.readLine());
             if (cm.Check(m.toString())) {
-                Solved = new StringBuilder((String) cm.Extract(m.toString()));
+                Solved = new StringBuilder((String) cm.getSolution(m.toString()));
             } else {
-                Solved = new StringBuilder((String) solver.Solve(m));
-                String[] arrows = Solved.toString().split("->");
-                Solved = new StringBuilder();
-                String[] arrow1;
-                String[] arrow2;
-                int x, y;
-                for (int i = 0; i < arrows.length - 1; i++) {
-                    arrow1 = arrows[i].split(",");
-                    arrow2 = arrows[i + 1].split(",");
-                    x = Integer.parseInt(arrow2[0]) - Integer.parseInt(arrow1[0]);
-                    y = Integer.parseInt(arrow2[1]) - Integer.parseInt(arrow1[1]);
-                    if (x > 0)
-                        Solved.append("Down" + ",");
-                    else if (x < 0)
-                        Solved.append("Up" + ",");
-                    else if (y > 0)
-                        Solved.append("Right" + ",");
-                    else
-                        Solved.append("Left" + ",");
-
-                }
-                cm.Save(m.toString(), Solved.toString());
+                Solved = getSolved(m);
             }
             Bout.println(Solved.substring(0, Solved.length() - 1));
             Bout.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private BestFirstSearch.Heuristic getHeuristic() {
+        BestFirstSearch.Heuristic heuristic = (s, goalState) -> {
+            String start = (String) (s.getState());
+            String[] split = start.split(",");
+            double x1 = Integer.parseInt(split[0]);
+            double y1 = Integer.parseInt(split[1]);
+            String end = (String) goalState.getState();
+            split = end.split(",");
+            double x2 = Integer.parseInt(split[0]);
+            double y2 = Integer.parseInt(split[1]);
+            return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+        };
+        return heuristic;
+    }
+
+    private StringBuilder getSolved(Matrix m) {
+        StringBuilder Solved;
+        Solved = new StringBuilder((String) solver.Solve(m));
+        String[] arrows = Solved.toString().split("->");
+        Solved = new StringBuilder();
+        String[] arrow1;
+        String[] arrow2;
+        int x, y;
+        for (int i = 0; i < arrows.length - 1; i++) {
+            arrow1 = arrows[i].split(",");
+            arrow2 = arrows[i + 1].split(",");
+            x = Integer.parseInt(arrow2[0]) - Integer.parseInt(arrow1[0]);
+            y = Integer.parseInt(arrow2[1]) - Integer.parseInt(arrow1[1]);
+            if (x > 0)
+                Solved.append("Down" + ",");
+            else if (x < 0)
+                Solved.append("Up" + ",");
+            else if (y > 0)
+                Solved.append("Right" + ",");
+            else
+                Solved.append("Left" + ",");
+
+        }
+        cm.Save(m.toString(), Solved.toString());
+        return Solved;
     }
 }

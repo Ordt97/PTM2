@@ -3,7 +3,7 @@ package client_side;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GenericFactory<Command> {
+public class CommandFactory<Command> {
 
     Map<String, Creator<Command>> map;
 
@@ -11,7 +11,7 @@ public class GenericFactory<Command> {
         Command create();
     }
 
-    public GenericFactory() {
+    public CommandFactory() {
         map = new HashMap<>();
     }
 

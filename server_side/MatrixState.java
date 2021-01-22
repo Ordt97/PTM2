@@ -8,15 +8,15 @@ public class MatrixState extends State<String> {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((state == null) ? 0 : state.hashCode());
-        return result;
+    public boolean equals(State s) {
+        return this.state.intern().equals(((String) s.getState()).intern());
     }
 
     @Override
-    public boolean equals(State s) {
-        return this.state.intern().equals(((String) s.getState()).intern());
+    public int hashCode() {
+        final int prime = 20;
+        int result = super.hashCode();
+        result = prime * result + ((state == null) ? 0 : state.hashCode());
+        return result;
     }
 }

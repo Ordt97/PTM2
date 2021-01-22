@@ -1,6 +1,5 @@
 package commands;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Observable;
@@ -17,24 +16,23 @@ public class ConnectCommand implements Command, Observer {
         new Thread(() -> {
             try {
                 Socket socket;
-                try {
-                    synchronized (OpenDataServerCommand.wait) {
-                        OpenDataServerCommand.wait.wait();
-                    }
-                    Thread.sleep(10000);
-                    socket = new Socket(args[1], Integer.parseInt(args[2]));
-                    out = new PrintWriter(socket.getOutputStream());
-                    while (!stop) {}
-                    out.close();
-                    socket.close();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                extracted();
+                Thread.sleep(10000);
+                socket = new Socket(args[1], Integer.parseInt(args[2]));
+                out = new PrintWriter(socket.getOutputStream());
+                out.close();
+                socket.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+
+    private static void extracted() throws InterruptedException {
+        synchronized (OpenDataServerCommand.wait) {
+            OpenDataServerCommand.wait.wait();
+        }
     }
 
     @Override

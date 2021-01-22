@@ -11,16 +11,15 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Interpreter {
-    AutoPilot parser;
     Lexer lexer;
+    AutoPilot parser;
 
     public Interpreter() {
+
         try {
             Scanner sc = new Scanner(new File("start_commands.txt"));
             List<String> lines = new ArrayList<>();
-            while (sc.hasNextLine()) {
-                lines.add(sc.nextLine());
-            }
+            while (sc.hasNextLine()) { lines.add(sc.nextLine()); }
             String[] start = lines.toArray(new String[0]);
             lexer = new Lexer(start);
             parser = new AutoPilot(new Parser(lexer.lex()));
@@ -28,7 +27,7 @@ public class Interpreter {
             AutoPilot.stop = false;
             parser.execute();
             Thread.sleep(1500);
-            //AutoPilot.stop = true;
+            AutoPilot.stop = true;
         } catch (FileNotFoundException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -40,14 +39,14 @@ public class Interpreter {
         parser.parse();
     }
 
-    public void execute() {
-        if (parser.i != 0)
-            parser.i--;
-        parser.start();
-        AutoPilot.stop = false;
-    }
-
     public void stop() {
         parser.stop();
+    }
+
+    public void execute() {
+        if (parser.numOfCommand != 0)
+            parser.numOfCommand--;
+        parser.start();
+        AutoPilot.stop = false;
     }
 }

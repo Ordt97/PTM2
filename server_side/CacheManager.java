@@ -1,9 +1,9 @@
 package server_side;
 
 public interface CacheManager<Problem, Solution> {
-    Boolean Check(Problem in);
+    Boolean Check(Problem p);
 
-    Solution Extract(Problem in);
+    Solution getSolution(Problem p);
 
-    void Save(Problem in, Solution out);
+    void Save(Problem p, Solution s);
 }

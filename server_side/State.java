@@ -10,18 +10,24 @@ public class State<T> {
         this.state = state;
     }
 
-    public State() {
-        this.state = null;
-        this.cost = 0;
-        this.cameFrom = null;
+    public T getState() {
+        return state;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
+
+    public State getCameFrom() {
+        return cameFrom;
+    }
+
+    public void setCameFrom(State cameFrom) {
+        this.cameFrom = cameFrom;
     }
 
     public boolean equals(State s) {
         return state.equals(s.getState());
-    }
-
-    public T getState() {
-        return state;
     }
 
     @Override
@@ -37,25 +43,11 @@ public class State<T> {
             return cost;
     }
 
-    public void setCost(double cost) {
-        this.cost = cost;
-    }
-
-    public State getCameFrom() {
-        return cameFrom;
-    }
-
-    public void setCameFrom(State cameFrom) {
-        this.cameFrom = cameFrom;
-    }
-
     @Override
     public int hashCode() {
-        final int prime = 31;
+        final int prime = 20;
         int result = 1;
         result = prime * result + ((state == null) ? 0 : state.hashCode());
         return result;
     }
-
-
 }

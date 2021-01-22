@@ -34,7 +34,6 @@ public class MySerialServer implements Server {
         stop = true;
     }
 
-
     private void runServer() throws Exception {
         ServerSocket server = new ServerSocket(port);
         System.out.println("Server is start. waiting for clients...");
@@ -47,7 +46,7 @@ public class MySerialServer implements Server {
                     c.handleClient(aClient.getInputStream(), aClient.getOutputStream());
                     aClient.close();
                 } catch (IOException e) {
-                    System.out.println("invalid input2-output");
+                    System.out.println("Something is invalid");
                     e.printStackTrace();
                 }
             } catch (SocketTimeoutException e) {
@@ -57,5 +56,4 @@ public class MySerialServer implements Server {
         }
         server.close();
     }
-
 }

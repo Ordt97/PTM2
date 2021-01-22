@@ -7,6 +7,10 @@ public class SetCommand implements Expression {
     private Command command;
     private String[] s;
 
+    public Command getCommand() {
+        return command;
+    }
+
     public SetCommand(Command command) {
         this.command = command;
     }
@@ -17,10 +21,6 @@ public class SetCommand implements Expression {
 
     public void setCommandStrings(String[] s) {
         this.s = s;
-    }
-
-    public Command getCommand() {
-        return command;
     }
 
     @Override

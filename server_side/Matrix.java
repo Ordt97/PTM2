@@ -5,9 +5,9 @@ import java.util.Arrays;
 
 public class Matrix implements Searchable {
     private State initialState;
-    private State goalState;
+    private State destinationState;
     private final int[][] matrix;
-    private MatrixState[][] stateMatrix;
+    private final MatrixState[][] stateMatrix;
 
     public Matrix(int[][] matrix) {
         this.matrix = matrix;
@@ -20,13 +20,23 @@ public class Matrix implements Searchable {
         }
     }
 
-    public Matrix() {
-        matrix = null;
-        initialState = null;
-        goalState = null;
+    @Override
+    public State getInitialState() {
+        return this.initialState;
     }
 
-    public void setInitialState(String s) {
+    @Override
+    public State getDestinationState() {
+        return this.destinationState;
+    }
+
+    @Override
+    public String toString() {
+        return "Matrix [initialState=" + initialState + ", destinationState=" + destinationState + ", matrix="
+                + Arrays.toString(matrix) + "]";
+    }
+
+    public void setInitState(String s) {
         String[] loc = s.split(",");
         int row, col;
         row = Integer.parseInt(loc[0]);
@@ -34,22 +44,12 @@ public class Matrix implements Searchable {
         this.initialState = stateMatrix[row][col];
     }
 
-    public void setGoalState(String s) {
+    public void setDestinationState(String s) {
         String[] loc = s.split(",");
         int row, col;
         row = Integer.parseInt(loc[0]);
         col = Integer.parseInt(loc[1]);
-        this.goalState = stateMatrix[row][col];
-    }
-
-    @Override
-    public State getInitialState() {
-        return this.initialState;
-    }
-
-    @Override
-    public State getGoalState() {
-        return this.goalState;
+        this.destinationState = stateMatrix[row][col];
     }
 
     @Override
@@ -113,8 +113,8 @@ public class Matrix implements Searchable {
                 down = stateMatrix[row + 1][col];
                 break;
         }
-        State[] statesArray = {right, left, up, down};
-        for (State state : statesArray) {
+        State[] surround = {right, left, up, down};
+        for (State state : surround) {
             if (state != null)
                 if (state != s.getCameFrom()) {
                     ans.add(state);
@@ -123,12 +123,4 @@ public class Matrix implements Searchable {
 
         return ans;
     }
-
-    @Override
-    public String toString() {
-        return "Matrix [initialState=" + initialState + ", goalState=" + goalState + ", matrix="
-                + Arrays.toString(matrix) + "]";
-    }
-
-
 }

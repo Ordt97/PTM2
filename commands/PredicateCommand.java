@@ -6,6 +6,10 @@ public class PredicateCommand implements Command {
 
     double result;
 
+    public double getResult() {
+        return result;
+    }
+
     @Override
     public void doCommand(String[] args) {
         StringBuilder s = new StringBuilder();
@@ -13,9 +17,5 @@ public class PredicateCommand implements Command {
             s.append(args[i]);
         }
         result = ConditionBuilder.calc(s.toString());
-    }
-
-    public double getResult() {
-        return result;
     }
 }

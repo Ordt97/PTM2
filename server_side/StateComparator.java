@@ -8,4 +8,5 @@ public class StateComparator implements Comparator<State> {
     public int compare(State s1, State s2) {
         return Double.compare(s1.getCost(), s2.getCost());
     }
+
 }
