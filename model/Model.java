@@ -37,7 +37,6 @@ public class Model extends Observable implements Observer {
     double currentLocationX;
     double currentLocationY;
     double currentHeading;
-    //ArrayList<String[]> intersections = new ArrayList<>();
     Thread route;
     Thread rudder;
     int indexPlan = 0;
@@ -79,6 +78,7 @@ public class Model extends Observable implements Observer {
             socketPath = new Socket(ip, port);
             outPath = new PrintWriter(socketPath.getOutputStream());
             in = new BufferedReader(new InputStreamReader(socketPath.getInputStream()));
+            Model.turn = true;
         } catch (IOException e) {
             System.out.println("Could not connect to server");
         }

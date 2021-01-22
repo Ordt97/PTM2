@@ -23,6 +23,7 @@ public class AutoPilot {
         if (stopVar != null)
             stopVar.setValue(0);
         AutoPilot.stop = true;
+        autoPilot.stop();
     }
 
     public void start() {
