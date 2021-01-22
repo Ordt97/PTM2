@@ -1,8 +1,4 @@
-package model;
-
-import client_side.AutoPilot;
-import client_side.Lexer;
-import client_side.Parser;
+package client_side;
 
 import java.io.File;
 import java.io.FileNotFoundException;
