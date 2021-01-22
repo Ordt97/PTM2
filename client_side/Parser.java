@@ -8,18 +8,21 @@ import java.io.FileReader;
 import java.util.*;
 
 public class Parser {
-    public static GenericFactory<Command> commandFactory = new GenericFactory<>();
-    public static HashMap<String, Var> symbolTable = new HashMap<>();
-    public ArrayList<String[]> lines;
-    public ArrayList<SetCommand> commands = new ArrayList<>();
-    public static ArrayList<String> vars;
     public static double returnValue;
+    public ArrayList<String[]> lines;
+    public static ArrayList<String> vars;
+    public ArrayList<SetCommand> commands = new ArrayList<>();
+    public static HashMap<String, Var> symbolTable = new HashMap<>();
+    public static CommandFactory<Command> commandFactory = new CommandFactory<>();
+
+    public void parse() {
+        this.commands = this.parseCommands(lines);
+    }
 
     public Parser(ArrayList<String[]> lines) {
 
-        HashMap<String, SetCommand> commandTable = new HashMap<>();
         this.lines = lines;
-
+        HashMap<String, SetCommand> commandTable = new HashMap<>();
         commandFactory.insertCommand("openDataServer", OpenDataServerCommand.class);
         commandFactory.insertCommand("connect", ConnectCommand.class);
         commandFactory.insertCommand("while", WhileCommand.class);
@@ -30,7 +33,6 @@ public class Parser {
         commandFactory.insertCommand("predicate", PredicateCommand.class);
         commandFactory.insertCommand("print", PrintCommand.class);
         commandFactory.insertCommand("sleep", SleepCommand.class);
-        commandFactory.insertCommand("autoroute", AutoRouteCommand.class);
         commandFactory.insertCommand("if", IfCommand.class);
 
         commandTable.put("openDataServer", new SetCommand(new OpenDataServerCommand()));
@@ -55,55 +57,50 @@ public class Parser {
         vars.forEach(path -> symbolTable.put(path, new Var(path)));
     }
 
-    private Command parseCondition(ArrayList<String[]> array) {
-
-        ConditionCommand c = (ConditionCommand) commandFactory.getNewCommand(array.get(0)[0]);
-        int i = 0;
-        ArrayList<SetCommand> tmp = new ArrayList<>();
-        SetCommand tmpExpression = new SetCommand(commandFactory.getNewCommand("predicate"));
-        tmpExpression.setCommandStrings(array.get(0));
-        tmp.add(tmpExpression);
-        c.setCommands(tmp);
-        c.getCommands().addAll(1, this.parseCommands(new ArrayList<>(array.subList(i + 1, array.size()))));
-        return c;
-    }
-
     private ArrayList<SetCommand> parseCommands(ArrayList<String[]> array) {
         ArrayList<SetCommand> commands = new ArrayList<>();
         for (int i = 0; i < array.size(); i++) {
-            SetCommand command = new SetCommand(commandFactory.getNewCommand(array.get(i)[0]));
-            if (command.getCommand() != null) {
+            SetCommand e = new SetCommand(commandFactory.getNewCommand(array.get(i)[0]));
+            if (e.getCommand() != null) {
                 if (array.get(i)[0].equals("while") || array.get(i)[0].equals("if")) {
                     int index = i;
-                    i += loopSize(new ArrayList<>(array.subList(i + 1, array.size()))) + 1;
-                    command.setCommand(this.parseCondition(new ArrayList<>(array.subList(index, i))));
+                    i += getLoopSize(new ArrayList<>(array.subList(i + 1, array.size()))) + 1;
+                    e.setCommand(this.parseConditionCommand(new ArrayList<>(array.subList(index, i))));
                 }
             } else {
 
-                command = new SetCommand(commandFactory.getNewCommand(array.get(i)[1]));
+                e = new SetCommand(commandFactory.getNewCommand(array.get(i)[1]));
             }
-            command.setCommandStrings(array.get(i));
-            commands.add(command);
+            e.setCommandStrings(array.get(i));
+            commands.add(e);
         }
         return commands;
     }
 
-    private int loopSize(ArrayList<String[]> array) {
+    private Command parseConditionCommand(ArrayList<String[]> array) {
+        ConditionCommand condition = (ConditionCommand) commandFactory.getNewCommand(array.get(0)[0]);
+        ArrayList<SetCommand> SetCommands = new ArrayList<>();
+        SetCommand exp = new SetCommand(commandFactory.getNewCommand("predicate"));
+        exp.setCommandStrings(array.get(0));
+        SetCommands.add(exp);
+        condition.setCommands(SetCommands);
+        //Parser command in loop
+        condition.getCommands().addAll(1, this.parseCommands(new ArrayList<>(array.subList(1, array.size()))));
+        return condition;
+    }
+
+    private int getLoopSize(ArrayList<String[]> array) {
         Stack<String> stack = new Stack<>();
         stack.push("{");
         for (int i = 0; i < array.size(); i++) {
             if (array.get(i)[0].equals("while") || array.get(i)[0].equals("if"))
                 stack.push("{");
-            if (array.get(i)[0].equals("}")) {
+            else if (array.get(i)[0].equals("}")) {
                 stack.pop();
                 if (stack.isEmpty())
                     return i;
             }
         }
         return 0;
-    }
-
-    public void parse() {
-        this.commands = this.parseCommands(lines);
     }
 }

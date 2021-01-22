@@ -1,15 +1,12 @@
 package model;
 
-
 import java.util.ArrayList;
 
 public class MapModel {
 
-    ArrayList<String[]> intersections = new ArrayList<>();
+    static ArrayList<String[]> intersections = new ArrayList<>();
 
     protected void buildPlan() {
-        intersections = new ArrayList<>();
-
         for (int i = 0; i < intersections.size(); i++) {
             int tmp = Integer.parseInt(intersections.get(i)[1]);
             if (tmp <= 5) {

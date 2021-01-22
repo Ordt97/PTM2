@@ -11,5 +11,4 @@ public class SolverSearcher<Problem, Solution> implements Solver<Problem, Soluti
     public Solution Solve(Problem p) {
         return (Solution) s.search((Searchable) p);
     }
-
 }

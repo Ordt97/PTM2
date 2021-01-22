@@ -24,14 +24,8 @@ public class ViewModel extends Observable implements Observer {
     public DoubleProperty heading;
     public DoubleProperty markSceneX, markSceneY;
     public BooleanProperty path;
-    private int data[][];
+    private int[][] data;
     private Model model;
-
-
-    public void setData(int[][] data) {
-        this.data = data;
-        model.GetPlaneLocation(startX.getValue(), startY.doubleValue(), offset.getValue());
-    }
 
     public ViewModel() {
         throttle = new SimpleDoubleProperty();
@@ -50,6 +44,10 @@ public class ViewModel extends Observable implements Observer {
         markSceneX = new SimpleDoubleProperty();
         markSceneY = new SimpleDoubleProperty();
         path = new SimpleBooleanProperty();
+    }
+
+    public void connect() {
+        model.connectManual(ip.getValue(), Integer.parseInt(port.getValue()));
     }
 
     public void setModel(Model model) {
@@ -75,8 +73,17 @@ public class ViewModel extends Observable implements Observer {
         model.send(data);
     }
 
-    public void connect() {
-        model.connectManual(ip.getValue(), Integer.parseInt(port.getValue()));
+    public void setData(int[][] data) {
+        this.data = data;
+        model.GetPlaneLocation(startX.getValue(), startY.doubleValue(), offset.getValue());
+    }
+
+    public void execute() {
+        model.execute();
+    }
+
+    public void stopAutoPilot() {
+        model.stopAutoPilot();
     }
 
     public void parse() {
@@ -90,14 +97,6 @@ public class ViewModel extends Observable implements Observer {
             tmp[i] = list.get(i);
         }
         model.parse(tmp);
-    }
-
-    public void execute() {
-        model.execute();
-    }
-
-    public void stopAutoPilot() {
-        model.stopAutoPilot();
     }
 
     public void findPath(double h, double w) {

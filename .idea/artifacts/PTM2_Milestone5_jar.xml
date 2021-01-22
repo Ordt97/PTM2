@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="PTM2_Milestone5:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/PTM2_Milestone5_jar</output-path>
+    <root id="archive" name="PTM2_Milestone5.jar" />
+  </artifact>
+</component>

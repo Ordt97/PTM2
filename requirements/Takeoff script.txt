@@ -1,0 +1,26 @@
+breaks = 0
+throttle = 1
+var h = heading
+var minus = 0-1
+var a = alt
+sleep 100
+print start
+while a-alt > minus*50 {
+rudder = (h-heading)/20
+aileron = minus * roll / 70
+elevator = pitch / 50
+sleep 50
+}
+print change
+while alt < 1000 {
+print h
+print heading
+rudder = (h-heading)/200
+print minus
+print roll
+aileron = minus * roll / 200
+elevator = pitch / 50
+print alt
+sleep 100
+}
+print "done"

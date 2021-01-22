@@ -5,27 +5,24 @@ import client_side.Parser;
 import java.util.LinkedList;
 import java.util.Stack;
 
-public class Algo {
+public class ExpressionBuilder {
 
     public static double calc(String exp) {
-        LinkedList<String> queue = new LinkedList<>();
-        Stack<String> stack = new Stack<>();
-        int len = exp.length();
-
         StringBuilder token;
+        int len = exp.length();
+        Stack<String> stack = new Stack<>();
+        LinkedList<String> queue = new LinkedList<>();
+
         for (int i = 0; i < len; i++) {
+            token = new StringBuilder(exp.charAt(i) + "");
             if (exp.charAt(i) >= '0' && exp.charAt(i) <= '9') {
-                token = new StringBuilder(exp.charAt(i) + "");
-                while ((i + 1 < len && exp.charAt(i + 1) >= '0' && exp.charAt(i + 1) <= '9')
-                        || (i + 1 < len && exp.charAt(i + 1) == '.'))
+                while ((i + 1 < len && exp.charAt(i + 1) >= '0' && exp.charAt(i + 1) <= '9') || (i + 1 < len && exp.charAt(i + 1) == '.'))
                     token.append(exp.charAt(++i));
             } else if ((exp.charAt(i) >= 'A' && exp.charAt(i) <= 'Z') || (exp.charAt(i) >= 'a' && exp.charAt(i) <= 'z')) {
-                token = new StringBuilder(exp.charAt(i) + "");
                 while (i < exp.length() - 1 && ((exp.charAt(i + 1) >= 'A' && exp.charAt(i + 1) <= 'Z') || (exp.charAt(i + 1) >= 'a' && exp.charAt(i + 1) <= 'z')))
                     token.append(exp.charAt(++i));
                 token = new StringBuilder(Parser.symbolTable.get(token.toString()).getValue() + "");
-            } else
-                token = new StringBuilder(exp.charAt(i) + "");
+            }
 
             switch (token.toString()) {
                 case "+":
