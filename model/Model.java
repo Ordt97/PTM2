@@ -1,6 +1,7 @@
 package model;
 
 import client_side.AutoPilot;
+import client_side.Interpreter;
 import client_side.Parser;
 
 import java.io.BufferedReader;
