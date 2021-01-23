@@ -1,0 +1,9 @@
+var minus = 0-1
+while destination != 1 {
+rudder = r
+aileron = minus * roll / 70
+elevator = e
+print heading
+sleep 300
+}
+print "done"
