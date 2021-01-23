@@ -46,9 +46,9 @@
     <Circle fx:id="Joystick" fill="gray" layoutX="405.0" layoutY="106.0" radius="17.5" stroke="#020c0f"
             style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);"
             strokeType="INSIDE"/>
-    <Text layoutX="375.5" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="&lt;- aileron -&gt;"
+    <Text layoutX="375.5" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="aileron"
           style="-fx-font-size:10px;"/>
     <Text layoutX="438.5" layoutY="108.0" rotate="90.0" strokeType="OUTSIDE" strokeWidth="0.0"
-          text="&lt;- elevator -&gt;" style="-fx-font-size:10px;"/>
+          text="elevator" style="-fx-font-size:10px;"/>
 </AnchorPane>
 

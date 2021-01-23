@@ -46,8 +46,8 @@ public class MyClientHandler implements ClientHandler {
                 j = 0;
             }
             Matrix m = new Matrix(mat);
-            BestFirstSearch.Heuristic heuristic = getHeuristic();
-            Searcher searcher = new BestFirstSearch(heuristic);
+            Algo.Heuristic heuristic = getHeuristic();
+            Searcher searcher = new Algo(heuristic);
             solver = new SolverSearcher<>(searcher);
             m.setInitState(Bin.readLine());
             m.setDestinationState(Bin.readLine());
@@ -63,8 +63,8 @@ public class MyClientHandler implements ClientHandler {
         }
     }
 
-    private BestFirstSearch.Heuristic getHeuristic() {
-        BestFirstSearch.Heuristic heuristic = (s, goalState) -> {
+    private Algo.Heuristic getHeuristic() {
+        Algo.Heuristic heuristic = (s, goalState) -> {
             String start = (String) (s.getState());
             String[] split = start.split(",");
             double x1 = Integer.parseInt(split[0]);
