@@ -3,14 +3,14 @@ package server_side;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class BestFirstSearch<Solution> extends CommonSearcher<Solution> {
+public class Algo<Solution> extends CommonSearcher<Solution> {
 
     Heuristic heuristic;
     public interface Heuristic {
         double cost(State s, State goalState);
     }
 
-    public BestFirstSearch(Heuristic heuristic) {
+    public Algo(Heuristic heuristic) {
         this.heuristic = heuristic;
     }
 
